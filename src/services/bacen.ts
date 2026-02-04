@@ -45,4 +45,26 @@ export class BacenService {
             throw new Error('Failed to fetch CDI rate');
         }
     }
+
+    /**
+     * Fetches the latest Average Interest Rates.
+     * Series 20716: PF - Total
+     * Series 20715: PJ - Total
+     */
+    static async getTaxasMedias() {
+        try {
+            const [pfResponse, pjResponse] = await Promise.all([
+                axios.get(`${SGS_API_BASE}/bcdata.sgs.20716/dados/ultimos/1?formato=json`),
+                axios.get(`${SGS_API_BASE}/bcdata.sgs.20715/dados/ultimos/1?formato=json`)
+            ]);
+
+            return {
+                pessoa_fisica: pfResponse.data,
+                pessoa_juridica: pjResponse.data
+            };
+        } catch (error) {
+            console.error('Error fetching Taxas Medias:', error);
+            throw new Error('Failed to fetch Taxas Medias');
+        }
+    }
 }

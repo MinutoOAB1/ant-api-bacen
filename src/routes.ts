@@ -30,4 +30,13 @@ router.get('/bacen/cdi', async (req, res) => {
     }
 });
 
+router.get('/bacen/taxas-medias', async (req, res) => {
+    try {
+        const data = await BacenService.getTaxasMedias();
+        res.json(data);
+    } catch (error) {
+        res.status(500).json({ error: 'Failed to fetch Taxas Medias' });
+    }
+});
+
 export default router;
