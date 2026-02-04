@@ -5,12 +5,25 @@ const SGS_API_BASE = 'https://api.bcb.gov.br/dados/serie';
 
 export class BacenService {
     /**
-     * Fetches the latest Selic rate.
+     * Helper to construct the API URL.
+     * If dates are provided, uses the range endpoint.
+     * Otherwise, defaults to the last 1 record.
+     */
+    private static getUrl(seriesCode: number, initialDate?: string, finalDate?: string) {
+        if (initialDate && finalDate) {
+            return `${SGS_API_BASE}/bcdata.sgs.${seriesCode}/dados?formato=json&dataInicial=${initialDate}&dataFinal=${finalDate}`;
+        }
+        return `${SGS_API_BASE}/bcdata.sgs.${seriesCode}/dados/ultimos/1?formato=json`;
+    }
+
+    /**
+     * Fetches Selic rate.
      * Series 11: Selic interest rate (daily)
      */
-    static async getSelic() {
+    static async getSelic(initialDate?: string, finalDate?: string) {
         try {
-            const response = await axios.get(`${SGS_API_BASE}/bcdata.sgs.11/dados/ultimos/1?formato=json`);
+            const url = this.getUrl(11, initialDate, finalDate);
+            const response = await axios.get(url);
             return response.data;
         } catch (error) {
             console.error('Error fetching Selic:', error);
@@ -19,12 +32,13 @@ export class BacenService {
     }
 
     /**
-     * Fetches the latest IPCA (Inflation) data.
+     * Fetches IPCA (Inflation) data.
      * Series 433: IPCA (monthly)
      */
-    static async getIpca() {
+    static async getIpca(initialDate?: string, finalDate?: string) {
         try {
-            const response = await axios.get(`${SGS_API_BASE}/bcdata.sgs.433/dados/ultimos/1?formato=json`);
+            const url = this.getUrl(433, initialDate, finalDate);
+            const response = await axios.get(url);
             return response.data;
         } catch (error) {
             console.error('Error fetching IPCA:', error);
@@ -33,12 +47,13 @@ export class BacenService {
     }
 
     /**
-     * Fetches the latest CDI rate.
+     * Fetches CDI rate.
      * Series 12: CDI interest rate (daily)
      */
-    static async getCdi() {
+    static async getCdi(initialDate?: string, finalDate?: string) {
         try {
-            const response = await axios.get(`${SGS_API_BASE}/bcdata.sgs.12/dados/ultimos/1?formato=json`);
+            const url = this.getUrl(12, initialDate, finalDate);
+            const response = await axios.get(url);
             return response.data;
         } catch (error) {
             console.error('Error fetching CDI:', error);
@@ -47,15 +62,15 @@ export class BacenService {
     }
 
     /**
-     * Fetches the latest Average Interest Rates.
+     * Fetches Average Interest Rates.
      * Series 20716: PF - Total
      * Series 20715: PJ - Total
      */
-    static async getTaxasMedias() {
+    static async getTaxasMedias(initialDate?: string, finalDate?: string) {
         try {
             const [pfResponse, pjResponse] = await Promise.all([
-                axios.get(`${SGS_API_BASE}/bcdata.sgs.20716/dados/ultimos/1?formato=json`),
-                axios.get(`${SGS_API_BASE}/bcdata.sgs.20715/dados/ultimos/1?formato=json`)
+                axios.get(this.getUrl(20716, initialDate, finalDate)),
+                axios.get(this.getUrl(20715, initialDate, finalDate))
             ]);
 
             return {
